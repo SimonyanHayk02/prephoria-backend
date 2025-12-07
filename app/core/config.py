@@ -1,5 +1,7 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+import json
 from typing import List, Any
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def _parse_env_var(field_name: str, raw_value: Any):
@@ -11,12 +13,20 @@ def _parse_env_var(field_name: str, raw_value: Any):
     return raw_value
 
 
+def _safe_json_loads(value: str):
+    try:
+        return json.loads(value)
+    except Exception:
+        return value
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
         parse_env_var=_parse_env_var,
+        json_loads=_safe_json_loads,
     )
 
     PROJECT_NAME: str = "Prephoria"
