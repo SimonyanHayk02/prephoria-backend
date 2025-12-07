@@ -18,8 +18,11 @@ class AuthService:
         if UserRepository.get_by_email(db, data.email):
             raise HTTPException(status_code=400, detail="Email already exists")
 
+        if data.password != data.confirm_password:
+            raise HTTPException(status_code=400, detail="Passwords do not match")
+
         hashed = pwd.hash(data.password)
-        user = UserRepository.create(db, data.email, hashed)
+        user = UserRepository.create(db, data.email, hashed, data.full_name)
 
         return {
             "access_token": create_access_token({"sub": str(user.id)}),
